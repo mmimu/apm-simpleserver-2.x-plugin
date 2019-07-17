@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.mimu.simple</groupId>
+  <artifactId>apm-simpleserver-2.x-plugin</artifactId>
+  <version>1.0-SNAPSHOT</version>
+
+  <name>apm-simpleserver-2.x-plugin</name>
+
+  <url>http://www.example.com</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <skywalk.version>6.2.0</skywalk.version>
+    <simpleserver.version>1.0-SNAPSHOT</simpleserver.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.skywalking</groupId>
+      <artifactId>apm-agent-core</artifactId>
+      <version>${skywalk.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.skywalking</groupId>
+      <artifactId>apm-util</artifactId>
+      <version>${skywalk.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mimu.simple</groupId>
+      <artifactId>simple-httpserver</artifactId>
+      <version>${simpleserver.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    
+  </build>
+</project>
