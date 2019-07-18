@@ -13,7 +13,7 @@ import static org.apache.skywalking.apm.agent.core.plugin.match.NameMatch.byName
 public class HttpServerHandlerInstrumentation extends ClassInstanceMethodsEnhancePluginDefine {
 
     private static final String ENHANCE_CLASS = "com.mimu.simple.httpserver.core.HttpServerHandler";
-    private static final String ENHANCE_METHOD = "channelRead0";
+    private static final String ENHANCE_METHOD = "process";
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.simpleserver.v2.HttpServerHandlerInterceptor";
 
     protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {

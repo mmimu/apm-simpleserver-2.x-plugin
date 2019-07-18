@@ -1,5 +1,12 @@
 package org.apache.skywalking.apm.plugin.simpleserver.v2;
 
+import com.mimu.simple.httpserver.core.SimpleHttpRequest;
+import org.apache.skywalking.apm.agent.core.context.CarrierItem;
+import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
+import org.apache.skywalking.apm.agent.core.context.ContextManager;
+import org.apache.skywalking.apm.agent.core.context.tag.Tags;
+import org.apache.skywalking.apm.agent.core.context.trace.AbstractSpan;
+import org.apache.skywalking.apm.agent.core.context.trace.SpanLayer;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.EnhancedInstance;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceMethodsAroundInterceptor;
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
@@ -7,15 +14,33 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInt
 import java.lang.reflect.Method;
 
 public class HttpServerHandlerInterceptor implements InstanceMethodsAroundInterceptor {
-    public void beforeMethod(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, MethodInterceptResult methodInterceptResult) throws Throwable {
 
+    public void beforeMethod(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, MethodInterceptResult methodInterceptResult) throws Throwable {
+        SimpleHttpRequest request = (SimpleHttpRequest) objects[0];
+        ContextCarrier contextCarrier = new ContextCarrier();
+        CarrierItem next = contextCarrier.items();
+        while (next.hasNext()) {
+            next = next.next();
+            next.setHeadValue(request.getHeaders().get(next.getHeadKey()));
+        }
+        AbstractSpan span = ContextManager.createEntrySpan(request.getUrl(), contextCarrier);
+        Tags.URL.set(span, request.getUrl());
+        Tags.HTTP.METHOD.set(span, request.getMethod().name());
+        span.setComponent("nettyServer");
+        SpanLayer.asHttp(span);
     }
 
     public Object afterMethod(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Object o) throws Throwable {
-        return null;
+        /*SimpleHttpResponse response = (SimpleHttpResponse) objects[1];
+        AbstractSpan span = ContextManager.activeSpan();
+        ContextManager.stopSpan();
+        ContextManager.getRuntimeContext().remove(Constants.NETTY_REQUEST_FLAG);*/
+        return o;
     }
 
     public void handleMethodException(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Throwable throwable) {
-
+        AbstractSpan span = ContextManager.activeSpan();
+        span.log(throwable);
+        span.errorOccurred();
     }
 }
