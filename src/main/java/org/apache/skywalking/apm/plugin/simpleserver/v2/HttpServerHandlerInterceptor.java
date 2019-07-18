@@ -1,6 +1,7 @@
 package org.apache.skywalking.apm.plugin.simpleserver.v2;
 
 import com.mimu.simple.httpserver.core.SimpleHttpRequest;
+import com.mimu.simple.httpserver.core.SimpleHttpResponse;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -12,6 +13,8 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 public class HttpServerHandlerInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -21,9 +24,9 @@ public class HttpServerHandlerInterceptor implements InstanceMethodsAroundInterc
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            next.setHeadValue(request.getHeaders().get(next.getHeadKey()));
+            next.setHeadValue(request.getRemoteIpAddress());
         }
-        AbstractSpan span = ContextManager.createEntrySpan(request.getUrl(), contextCarrier);
+        AbstractSpan span = ContextManager.createEntrySpan(request.getRemoteIpAddress(), contextCarrier);
         Tags.URL.set(span, request.getUrl());
         Tags.HTTP.METHOD.set(span, request.getMethod().name());
         span.setComponent("nettyServer");
@@ -31,10 +34,10 @@ public class HttpServerHandlerInterceptor implements InstanceMethodsAroundInterc
     }
 
     public Object afterMethod(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Object o) throws Throwable {
-        /*SimpleHttpResponse response = (SimpleHttpResponse) objects[1];
+        SimpleHttpResponse response = (SimpleHttpResponse) objects[1];
         AbstractSpan span = ContextManager.activeSpan();
         ContextManager.stopSpan();
-        ContextManager.getRuntimeContext().remove(Constants.NETTY_REQUEST_FLAG);*/
+        ContextManager.getRuntimeContext().remove("NETTY_REQUEST_FLAG");
         return o;
     }
 
