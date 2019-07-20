@@ -24,9 +24,9 @@ public class HttpServerHandlerInterceptor implements InstanceMethodsAroundInterc
         CarrierItem next = contextCarrier.items();
         while (next.hasNext()) {
             next = next.next();
-            next.setHeadValue(request.getRemoteIpAddress());
+            next.setHeadValue(request.getHeaders().get(next.getHeadKey()));
         }
-        AbstractSpan span = ContextManager.createEntrySpan(request.getRemoteIpAddress(), contextCarrier);
+        AbstractSpan span = ContextManager.createEntrySpan(request.getUrl(), contextCarrier);
         Tags.URL.set(span, request.getUrl());
         Tags.HTTP.METHOD.set(span, request.getMethod().name());
         span.setComponent("nettyServer");
@@ -34,8 +34,6 @@ public class HttpServerHandlerInterceptor implements InstanceMethodsAroundInterc
     }
 
     public Object afterMethod(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Object o) throws Throwable {
-        SimpleHttpResponse response = (SimpleHttpResponse) objects[1];
-        AbstractSpan span = ContextManager.activeSpan();
         ContextManager.stopSpan();
         ContextManager.getRuntimeContext().remove("NETTY_REQUEST_FLAG");
         return o;
