@@ -1,7 +1,8 @@
 package org.apache.skywalking.apm.plugin.simpleserver.v2;
 
-import com.mimu.simple.httpserver.core.SimpleHttpRequest;
-import com.mimu.simple.httpserver.core.SimpleHttpResponse;
+import com.mimu.simple.httpserver.core.request.SimpleHttpRequest;
+import com.mimu.simple.httpserver.core.response.SimpleHttpResponse;
+import io.netty.handler.codec.http.FullHttpResponse;
 import org.apache.skywalking.apm.agent.core.context.CarrierItem;
 import org.apache.skywalking.apm.agent.core.context.ContextCarrier;
 import org.apache.skywalking.apm.agent.core.context.ContextManager;
@@ -13,8 +14,6 @@ import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.InstanceM
 import org.apache.skywalking.apm.agent.core.plugin.interceptor.enhance.MethodInterceptResult;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
 public class HttpServerHandlerInterceptor implements InstanceMethodsAroundInterceptor {
 
@@ -29,13 +28,19 @@ public class HttpServerHandlerInterceptor implements InstanceMethodsAroundInterc
         AbstractSpan span = ContextManager.createEntrySpan(request.getUrl(), contextCarrier);
         Tags.URL.set(span, request.getUrl());
         Tags.HTTP.METHOD.set(span, request.getMethod().name());
-        span.setComponent("nettyServer");
+        span.setComponent(SimpleHtttpServerConstants.serverComponent);
         SpanLayer.asHttp(span);
     }
 
     public Object afterMethod(EnhancedInstance enhancedInstance, Method method, Object[] objects, Class<?>[] classes, Object o) throws Throwable {
+        SimpleHttpResponse response = (SimpleHttpResponse) objects[1];
+        FullHttpResponse fullHttpResponse = response.getResponse();
+        AbstractSpan span = ContextManager.activeSpan();
+        if (fullHttpResponse.status().code() >= 400) {
+            span.errorOccurred();
+            Tags.STATUS_CODE.set(span, Integer.toString(fullHttpResponse.status().code()));
+        }
         ContextManager.stopSpan();
-        ContextManager.getRuntimeContext().remove("NETTY_REQUEST_FLAG");
         return o;
     }
 
