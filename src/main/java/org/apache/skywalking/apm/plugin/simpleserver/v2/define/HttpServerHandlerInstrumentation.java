@@ -16,11 +16,11 @@ public class HttpServerHandlerInstrumentation extends ClassInstanceMethodsEnhanc
     private static final String ENHANCE_METHOD = "process";
     private static final String INTERCEPTOR_CLASS = "org.apache.skywalking.apm.plugin.simpleserver.v2.HttpServerHandlerInterceptor";
 
-    protected ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
+    public ConstructorInterceptPoint[] getConstructorsInterceptPoints() {
         return null;
     }
 
-    protected InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
+    public InstanceMethodsInterceptPoint[] getInstanceMethodsInterceptPoints() {
         return new InstanceMethodsInterceptPoint[]{
                 new InstanceMethodsInterceptPoint() {
                     public ElementMatcher<MethodDescription> getMethodsMatcher() {
