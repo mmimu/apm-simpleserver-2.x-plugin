@@ -1,4 +1,4 @@
-package org.apache.skywalking.apm.plugin;
+package org.apache.skywalking.apm.plugin.simple.server;
 
 import org.apache.skywalking.apm.network.trace.component.OfficialComponent;
 
