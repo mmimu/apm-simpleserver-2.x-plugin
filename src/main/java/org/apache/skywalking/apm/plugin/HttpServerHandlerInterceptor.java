@@ -1,4 +1,5 @@
-package org.apache.skywalking.apm.plugin.simpleserver.v2;
+package org.apache.skywalking.apm.plugin;
+
 
 import com.mimu.simple.httpserver.core.request.SimpleHttpRequest;
 import com.mimu.simple.httpserver.core.response.SimpleHttpResponse;
